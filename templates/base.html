@@ -33,7 +33,7 @@
             width: 400px;
             height: 200px;
             font-size: 17px;
-            font-family: monospace;
+            font-family: helvetica;
         }
 
         input[type=submit] {
@@ -60,32 +60,10 @@
     </style>
 
     <body>
-        <h1>/Blog/</h1>
+        <h1>/Nate B's Blog/</h1>
 
-        <form method="post">
-            <label>
-                <div>Title</div>
-                <input type="text" name="title" value="{{title}}"">
-            </label>
-            <br>
-            <label>
-                <div>Post</div>
-                <textarea name="art">{{art}}</textarea>
-            </label>
-
-            <div class="error">{{error}}</div>
-            <br>
-            <input type="submit">
-        </form>
-
-        <hr>
-
-        {% for art in arts %}
-            <div class="art">
-                <div class="art-title">{{art.title}}</div>
-                <pre class="art-body">{{art.art}}</pre>
-            </div>
-        {% endfor %}
+        {% block content %}
+        {% endblock %}
 
     </body>
 </html>
