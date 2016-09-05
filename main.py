@@ -1,15 +1,16 @@
 import webapp2
 import jinja2
 import os
+import cgi
 from google.appengine.ext import db
 
 template_dir = os.path.join(os.path.dirname(__file__), 'templates')
 jinja_env = jinja2.Environment(loader = jinja2.FileSystemLoader(template_dir),
                                autoescape = True)
 
-class Art(db.Model):
+class Post(db.Model):
     title = db.StringProperty(required = True)
-    art = db.TextProperty(required = True)
+    post = db.TextProperty(required = True)
     created = db.DateTimeProperty(auto_now_add = True)
 
 class Handler(webapp2.RequestHandler):
@@ -24,36 +25,44 @@ class Handler(webapp2.RequestHandler):
         self.write(self.render_str(template, **kw))
 
 class Newpost(Handler):
-    def render_newpost(self, title="", art="", error=""):
-        self.render("newpost.html", title=title, art=art, error=error,)
+    def render_newpost(self, title="", post="", error=""):
+        self.render("newpost.html", title=title, post=post, error=error,)
 
     def get(self):
         self.render_newpost()
 
     def post(self):
         title = self.request.get("title")
-        art = self.request.get("art")
+        post = self.request.get("post")
 
-        if title and art:
-            a = Art(title = title, art = art)
+        if title and post:
+            a = Post(title = title, post = post)
             a.put()
 
             self.redirect("/blog")
         else:
             error = "Please enter both a title and some content to post."
-            self.render_newpost(title, art, error)
+            self.render_newpost(title, post, error)
 
 class Blog(Handler):
-    def render_blog(self, title="", art="", error=""):
-        arts = db.GqlQuery("SELECT * FROM Art ORDER BY created DESC LIMIT 5")
-        self.render("blog.html", title=title, art=art, error=error, arts=arts)
+    def render_blog(self, title="", post="", error=""):
+        posts = db.GqlQuery("SELECT * FROM Post ORDER BY created DESC LIMIT 5")
+        self.render("blog.html", title=title, post=post, error=error, posts=posts)
 
     def get(self):
         title = self.request.get("title")
-        art = self.request.get("art")
-        self.render_blog(title, art)
+        post = self.request.get("post")
+        self.render_blog(title, post)
+
+class ViewPostHandler(webapp2.RequestHandler):
+    def get(self, id):
+        desiredPost = Post.get_by_id(int(id))
+        title = desiredPost.title
+        post = desiredPost.post
+        self.response.write(title + " " + post)
 
 app = webapp2.WSGIApplication([
     ('/blog', Blog),
-    ('/newpost', Newpost)
+    ('/newpost', Newpost),
+    webapp2.Route('/blog/<id:\d+>', ViewPostHandler),
 ], debug=True)
