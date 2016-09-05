@@ -26,9 +26,7 @@ class Handler(webapp2.RequestHandler):
 
 class Newpost(Handler):
     def render_newpost(self, title="", art="", error=""):
-        arts = db.GqlQuery("SELECT * FROM Art ORDER BY created DESC")
-
-        self.render("newpost.html", title=title, art=art, error=error, arts=arts)
+        self.render("newpost.html", title=title, art=art, error=error,)
 
     def get(self):
         self.render_newpost()
@@ -44,10 +42,11 @@ class Newpost(Handler):
             self.redirect("/blog")
         else:
             error = "Please enter both a title and some content to post."
+            self.render_newpost(title, art, error)
 
 class Blog(Handler):
     def render_blog(self, title="", art="", error=""):
-        arts = db.GqlQuery("SELECT * FROM Art ORDER BY created DESC")
+        arts = db.GqlQuery("SELECT * FROM Art ORDER BY created DESC LIMIT 5")
         self.render("blog.html", title=title, art=art, error=error, arts=arts)
 
     def get(self):
