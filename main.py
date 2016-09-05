@@ -1,3 +1,4 @@
+
 import webapp2
 import jinja2
 import os
@@ -23,14 +24,14 @@ class Handler(webapp2.RequestHandler):
     def render(self, template, **kw):
         self.write(self.render_str(template, **kw))
 
-class Blog(Handler):
-    def render_base(self, title="", art="", error=""):
+class Newpost(Handler):
+    def render_newpost(self, title="", art="", error=""):
         arts = db.GqlQuery("SELECT * FROM Art ORDER BY created DESC")
 
-        self.render("base.html", title=title, art=art, error=error, arts=arts)
+        self.render("newpost.html", title=title, art=art, error=error, arts=arts)
 
     def get(self):
-        self.render_base()
+        self.render_newpost()
 
     def post(self):
         title = self.request.get("title")
@@ -40,9 +41,21 @@ class Blog(Handler):
             a = Art(title = title, art = art)
             a.put()
 
-            self.redirect("/")
+            self.redirect("/blog")
         else:
             error = "Please enter both a title and some content to post."
-            self.render_base(title, art, error)
 
-app = webapp2.WSGIApplication([('/', Blog)], debug=True)
+class Blog(Handler):
+    def render_blog(self, title="", art="", error=""):
+        arts = db.GqlQuery("SELECT * FROM Art ORDER BY created DESC")
+        self.render("blog.html", title=title, art=art, error=error, arts=arts)
+
+    def get(self):
+        title = self.request.get("title")
+        art = self.request.get("art")
+        self.render_blog(title, art)
+
+app = webapp2.WSGIApplication([
+    ('/blog', Blog),
+    ('/newpost', Newpost)
+], debug=True)
