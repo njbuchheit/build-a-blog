@@ -54,12 +54,12 @@ class Blog(Handler):
         post = self.request.get("post")
         self.render_blog(title, post)
 
-class ViewPostHandler(webapp2.RequestHandler):
+class ViewPostHandler(Handler):
     def get(self, id):
         desiredPost = Post.get_by_id(int(id))
         title = desiredPost.title
         post = desiredPost.post
-        self.response.write(title + " " + post)
+        self.render("indPost.html", title=title, post=post)
 
 app = webapp2.WSGIApplication([
     ('/blog', Blog),
