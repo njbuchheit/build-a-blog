@@ -57,9 +57,13 @@ class Blog(Handler):
 class ViewPostHandler(Handler):
     def get(self, id):
         desiredPost = Post.get_by_id(int(id))
-        title = desiredPost.title
-        post = desiredPost.post
-        self.render("indPost.html", title=title, post=post)
+        if desiredPost:
+            title = desiredPost.title
+            post = desiredPost.post
+            self.render("indPost.html", title=title, post=post)
+        else:
+            error = "Invalid post id.  Please use a valid id."
+            self.render("indPost.html", error=error)
 
 app = webapp2.WSGIApplication([
     ('/blog', Blog),
