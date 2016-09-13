@@ -38,8 +38,8 @@ class Newpost(Handler):
         if title and post:
             a = Post(title = title, post = post)
             a.put()
-
-            self.redirect("/blog")
+            id = a.key().id()
+            self.redirect("/blog/" + str(id))
         else:
             error = "Please enter both a title and some content to post."
             self.render_newpost(title, post, error)
